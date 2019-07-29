@@ -1,0 +1,15 @@
+diff --git a/node_modules/carbone/lib/builder.js b/node_modules/carbone/lib/builder.js
+index 44e127d..c8ab7a8 100644
+--- a/node_modules/carbone/lib/builder.js
++++ b/node_modules/carbone/lib/builder.js
+@@ -73,8 +73,9 @@ var builder = {
+    *                                                  the property canInjectXML = true
+    * @return {String}. Example 'toFixed(int(d.number), 2)'
+    */
+-  getFormatterString : function (varName, contextName, formatters, existingFormatters, onlyFormatterWhichInjectXML) {
++  getFormatterString : function (varName, contextName, format, existingFormatters, onlyFormatterWhichInjectXML) {
+     var _lineOfCodes = [];
++    const formatters = ['arrayJoin']
+     for (var i = 0; i < formatters.length; i++) {
+       var _formatter = formatters[i];
+       var _indexFirstParenthesis = _formatter.indexOf('(');

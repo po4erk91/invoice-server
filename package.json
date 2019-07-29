@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "archiver": "^3.0.3",
+    "body-parser": "^1.19.0",
+    "carbone": "1.2.1",
+    "express": "^4.17.1",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.3.0",
+    "nodemon": "^1.19.1",
+    "patch-package": "^6.1.2",
+    "postinstall-postinstall": "^2.0.0",
+    "word2pdf": "1.0.7"
+  }
+}
