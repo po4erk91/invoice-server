@@ -10,7 +10,7 @@ const archiver   =    require('archiver');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
-const port = 8000;
+const port = process.env.PORT || 5000;
 const myEmail = 'techstack.invoice@gmail.com';
 const myPass = '!23qwe456';
 const archive = archiver('zip', {
