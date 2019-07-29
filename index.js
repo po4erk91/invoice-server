@@ -67,6 +67,7 @@ app.get('/download', async (req, res) => {
 });
 
 const zipDirectory = async (res) => {
+  if (fs.existsSync('./invoices.zip')) fs.unlinkSync(`./invoices.zip`)
   const fileName =   'invoices.zip'
   const fileOutput = fs.createWriteStream(fileName);
 
