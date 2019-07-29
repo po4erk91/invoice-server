@@ -13,9 +13,6 @@ const upload = multer({ dest: 'uploads/' });
 const port = process.env.PORT || 5000;
 const myEmail = 'techstack.invoice@gmail.com';
 const myPass = '!23qwe456';
-const archive = archiver('zip', {
-  zlib: { level: 9 }
-});
 
 app.use(bodyParser.raw());
 app.use(bodyParser.json());
@@ -67,7 +64,9 @@ app.get('/download', async (req, res) => {
 });
 
 const zipDirectory = async (res) => {
-  if (fs.existsSync('./invoices.zip')) fs.unlinkSync(`./invoices.zip`)
+  const archive = new archiver('zip', {
+    zlib: { level: 9 }
+  });
   const fileName =   'invoices.zip'
   const fileOutput = fs.createWriteStream(fileName);
 
