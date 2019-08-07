@@ -7,6 +7,7 @@ const path       =        require("path");
 const multer     =      require('multer');
 const nodemailer =  require('nodemailer');
 const archiver   =    require('archiver');
+const del        =         require('del');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -70,10 +71,11 @@ const zipDirectory = async (res) => {
   const fileName =   'invoices.zip'
   const fileOutput = fs.createWriteStream(fileName);
 
-  fileOutput.on('close', () => {
+  fileOutput.on('close', async () => {
       console.info(archive.pointer() + ' total bytes');
       console.info('archiver has been finalized and the output file descriptor has closed.');
       res.download('./invoices.zip')
+      await del(['./invoices/**/*'])
   });
 
   archive.pipe(fileOutput);
@@ -127,4 +129,5 @@ const sendMail = async (data, res) => {
     return transport.sendMail(message,err => err)
   })
   res.send(Promise.all(resp))
+  await del(['./invoices/**/*'])
 };
