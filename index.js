@@ -64,6 +64,21 @@ app.get('/download', async (req, res) => {
   await zipDirectory(res)
 });
 
+app.get('/reset', async (req, res) => {
+  const dirname = './invoices'
+  fs.readdir(dirname, async (err, files) => {
+    if(err) {
+      res.send('You have not generated new invoices yet...')
+    }
+    if (!files.length) {
+      res.send('Invoices folder is empty!')
+    }else{
+      await del([`${dirname}/**/*`])
+      res.send('All invoices was removed!')
+    }
+  });
+});
+
 const zipDirectory = async (res) => {
   const archive = new archiver('zip', {
     zlib: { level: 9 }
@@ -75,7 +90,6 @@ const zipDirectory = async (res) => {
       console.info(archive.pointer() + ' total bytes');
       console.info('archiver has been finalized and the output file descriptor has closed.');
       res.download('./invoices.zip')
-      await del(['./invoices/**/*'])
   });
 
   archive.pipe(fileOutput);
@@ -93,7 +107,7 @@ const handleError = (err, res) => {
     .end(JSON.stringify(err));
 };
 
-const saveDocxFile = (data, res) => {
+const saveDocxFile = async (data, res) => {
   const name = data.StaffNameEN
   carbone.render('./uploads/template.docx', data, (err, result) => {
     if(err) handleError(err, res)
@@ -129,5 +143,4 @@ const sendMail = async (data, res) => {
     return transport.sendMail(message,err => err)
   })
   res.send(Promise.all(resp))
-  await del(['./invoices/**/*'])
 };
