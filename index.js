@@ -85,19 +85,17 @@ const zipDirectory = async (res) => {
   });
   const fileName = 'invoices.zip'
   const fileOutput = fs.createWriteStream(fileName);
-
-  fileOutput.on('close', async () => {
-    console.info(archive.pointer() + ' total bytes');
-    console.info('archiver has been finalized and the output file descriptor has closed.');
-    res.download('./invoices.zip')
-  });
-
   archive.pipe(fileOutput);
   archive.glob("./invoices/**/*");
   archive.on('error', function(err){
       throw err;
   });
   archive.finalize();
+  fileOutput.on('close', async () => {
+    console.info(archive.pointer() + ' total bytes');
+    console.info('archiver has been finalized and the output file descriptor has closed.');
+    res.download('./invoices.zip')
+  });
 }
 
 const handleError = (err, res) => {
