@@ -79,6 +79,18 @@ app.get('/reset', async (req, res) => {
   });
 });
 
+const createDirs = () => {
+  const dir = ['./invoices','./uploads']
+  dir.forEach(item => {
+    if (!fs.existsSync(item)){
+      fs.mkdirSync(item);
+    }
+  })
+}
+
+createDirs()
+
+
 const zipDirectory = async (res) => {
   const archive = new archiver('zip', {
     zlib: { level: 9 }
@@ -122,7 +134,7 @@ const savePdfFile = async (res,name) => {
   await convertapi.convert('pdf', {
       File: `./${name}.docx`
   }, 'docx').then(function(result) {
-      result.saveFiles('./invoices/');
+      result.saveFiles('/invoices');
       fs.unlinkSync(`./${name}.docx`)
       res.send('Complete!')
   });
