@@ -87,9 +87,9 @@ const zipDirectory = async (res) => {
   const fileOutput = fs.createWriteStream(fileName);
 
   fileOutput.on('close', async () => {
-      console.info(archive.pointer() + ' total bytes');
-      console.info('archiver has been finalized and the output file descriptor has closed.');
-      res.download('./invoices.zip')
+    console.info(archive.pointer() + ' total bytes');
+    console.info('archiver has been finalized and the output file descriptor has closed.');
+    res.download('./invoices.zip')
   });
 
   archive.pipe(fileOutput);
