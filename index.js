@@ -70,11 +70,11 @@ app.get('/reset', async (req, res) => {
     if(err) {
       res.send('You have not generated new invoices yet...')
     }
-    if (!files.length) {
-      res.send('Invoices folder is empty!')
-    }else{
+    if (files && files.length) {
       await del([`${dirname}/**/*`,`invoices.zip`, 'uploads/template.docx'])
       res.send('All invoices was removed!')
+    }else{
+      res.send('Invoices folder is empty!')
     }
   });
 });
@@ -88,7 +88,11 @@ const zipDirectory = async (res) => {
   archive.pipe(fileOutput);
   archive.glob("./invoices/**/*");
   archive.on('error', function(err){
-      throw err;
+    console.log(err)
+    res.status(500)
+    .contentType("text/plain")
+    .end(err);
+    throw err;
   });
   archive.finalize();
   fileOutput.on('close', async () => {
@@ -118,7 +122,7 @@ const savePdfFile = async (res,name) => {
   await convertapi.convert('pdf', {
       File: `./${name}.docx`
   }, 'docx').then(function(result) {
-      result.saveFiles('./invoices');
+      result.saveFiles('./invoices/');
       fs.unlinkSync(`./${name}.docx`)
       res.send('Complete!')
   });
