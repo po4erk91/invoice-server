@@ -17,7 +17,6 @@
     "nodemailer": "^6.3.0",
     "nodemon": "^1.19.1",
     "patch-package": "^6.1.2",
-    "postinstall-postinstall": "^2.0.0",
-    "word2pdf": "1.0.7"
+    "postinstall-postinstall": "^2.0.0"
   }
 }
