@@ -117,7 +117,7 @@ const saveDocxFile = async (data, res) => {
 };
 
 const savePdfFile = async (res,name) => {
-  convertapi.convert('pdf', {
+  await convertapi.convert('pdf', {
       File: `./${name}.docx`
   }, 'docx').then(function(result) {
       result.saveFiles('./invoices');
