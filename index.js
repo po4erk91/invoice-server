@@ -2,12 +2,12 @@ const fs         =          require('fs');
 const carbone    =     require('carbone');
 const express    =     require('express');
 const bodyParser = require('body-parser');
-const word2pdf   =    require('word2pdf');
 const path       =        require("path");
 const multer     =      require('multer');
 const nodemailer =  require('nodemailer');
 const archiver   =    require('archiver');
 const del        =         require('del');
+const convertapi = require('convertapi')('HP60lB7X8mOgyVmR');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -73,7 +73,7 @@ app.get('/reset', async (req, res) => {
     if (!files.length) {
       res.send('Invoices folder is empty!')
     }else{
-      await del([`${dirname}/**/*`])
+      await del([`${dirname}/**/*`,`invoices.zip`, 'uploads/template.docx'])
       res.send('All invoices was removed!')
     }
   });
@@ -83,7 +83,7 @@ const zipDirectory = async (res) => {
   const archive = new archiver('zip', {
     zlib: { level: 9 }
   });
-  const fileName =   'invoices.zip'
+  const fileName = 'invoices.zip'
   const fileOutput = fs.createWriteStream(fileName);
 
   fileOutput.on('close', async () => {
@@ -111,17 +111,19 @@ const saveDocxFile = async (data, res) => {
   const name = data.StaffNameEN
   carbone.render('./uploads/template.docx', data, (err, result) => {
     if(err) handleError(err, res)
-    fs.writeFileSync(`./temp-${name}.docx`, result)
+    fs.writeFileSync(`./${name}.docx`, result)
     savePdfFile(res,name)
   })
 };
 
 const savePdfFile = async (res,name) => {
-  const data = await word2pdf(`./temp-${name}.docx`)
-  if (!fs.existsSync('./invoices')) fs.mkdirSync('./invoices');
-  fs.writeFileSync(`./invoices/${name}.pdf`, data);
-  fs.unlinkSync(`./temp-${name}.docx`)
-  res.send('Complete!')
+  convertapi.convert('pdf', {
+      File: `./${name}.docx`
+  }, 'docx').then(function(result) {
+      result.saveFiles('./invoices');
+      fs.unlinkSync(`./${name}.docx`)
+      res.send('Complete!')
+  });
 };
 
 const sendMail = async (data, res) => {
