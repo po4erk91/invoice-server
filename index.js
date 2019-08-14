@@ -72,6 +72,7 @@ app.get('/reset', async (req, res) => {
     }
     if (files && files.length) {
       await del([`${dirname}/**/*`,`invoices.zip`, 'uploads/template.docx'])
+      createDirs()
       res.send('All invoices was removed!')
     }else{
       res.send('Invoices folder is empty!')
