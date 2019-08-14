@@ -134,7 +134,8 @@ const savePdfFile = async (res,name) => {
   await convertapi.convert('pdf', {
       File: `./${name}.docx`
   }, 'docx').then(function(result) {
-      result.saveFiles('/invoices');
+      console.log(result)
+      result.saveFiles('./invoices');
       fs.unlinkSync(`./${name}.docx`)
       res.send('Complete!')
   });
