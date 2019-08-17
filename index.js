@@ -7,7 +7,7 @@ const multer     =      require('multer');
 const nodemailer =  require('nodemailer');
 const archiver   =    require('archiver');
 const del        =         require('del');
-const convertapi = require('convertapi')('HP60lB7X8mOgyVmR');
+const docx = require("@nativedocuments/docx-wasm");
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -15,6 +15,12 @@ const port = process.env.PORT || 5000;
 const myEmail = 'techstack.invoice@gmail.com';
 const myPass = '!23qwe456';
 
+docx.init({
+  ND_DEV_ID: "5KGCKQSN9GM2CL4GDED4RP8SCL", // goto https://developers.nativedocuments.com/ to get a dev-id/dev-secret
+  ND_DEV_SECRET: "23FFG9JR34K583MEPKLDQTFQD7",
+  ENVIRONMENT: "NODE",
+  LAZY_INIT: true // if set to false the WASM engine will be initialized right now, usefull pre-caching (like e.g. for AWS lambda)
+})
 app.use(bodyParser.raw());
 app.use(bodyParser.json());
 app.use(function(req, res, next){
@@ -88,7 +94,6 @@ const createDirs = () => {
     }
   })
 }
-
 createDirs()
 
 
@@ -101,7 +106,6 @@ const zipDirectory = async (res) => {
   archive.pipe(fileOutput);
   archive.glob("./invoices/**/*");
   archive.on('error', function(err){
-    console.log(err)
     res.status(500)
     .contentType("text/plain")
     .end(err);
@@ -132,13 +136,20 @@ const saveDocxFile = async (data, res) => {
 };
 
 const savePdfFile = async (res,name) => {
-  await convertapi.convert('pdf', {
-      File: `./${name}.docx`
-  }, 'docx').then(function(result) {
-      console.log(result)
-      result.saveFiles('./invoices');
-      fs.unlinkSync(`./${name}.docx`)
-      res.send('Complete!')
+  async function convertHelper(document, exportFct) {
+    const api = await docx.engine();
+    await api.load(document);
+    const arrayBuffer = await api[exportFct]();
+    await api.close();
+    return arrayBuffer;
+  }
+  convertHelper(`./${name}.docx`, "exportPDF").then((arrayBuffer) => {
+    fs.writeFileSync(`./invoices/${name}.pdf`, new Uint8Array(arrayBuffer));
+  }).then(() => {
+    fs.unlinkSync(`./${name}.docx`)
+    res.send('Complete!')
+  }).catch((e) => {
+      console.error(e);
   });
 };
 

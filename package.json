@@ -7,10 +7,10 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@nativedocuments/docx-wasm": "^2.2.13-1561490777",
     "archiver": "3.0.3",
     "body-parser": "^1.19.0",
     "carbone": "1.2.1",
-    "convertapi": "^1.2.0",
     "del": "^5.0.0",
     "express": "^4.17.1",
     "multer": "^1.4.2",
