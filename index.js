@@ -86,6 +86,18 @@ app.get('/reset', async (req, res) => {
   });
 });
 
+app.get('/emailMessage', async (req, res) => {
+  fs.exists('./message.txt', (exists) => {
+    if(!exists){ res.send({message: ""}); return true}
+    fs.readFile('./message.txt', 'utf8', (err, contents) => {
+      if(err){
+        res.send({message: ""});
+      }
+      res.send(JSON.parse(contents));
+    });
+  })
+})
+
 const createDirs = () => {
   const dir = ['./invoices','./uploads']
   dir.forEach(item => {
@@ -154,6 +166,7 @@ const savePdfFile = async (res,name) => {
 };
 
 const sendMail = async (data, res) => {
+  fs.writeFileSync('./message.txt', JSON.stringify({message: data.message }))
   const transport = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -161,12 +174,12 @@ const sendMail = async (data, res) => {
       pass: myPass
     }
   })
-  const resp = await data.map(item => {
+  const resp = await data.emails.map(item => {
     const message = {
       from: myEmail,
       to: item.email,
       subject: item.name,
-      text: `Hello ${item.name}, this your invoice for this month!`,
+      text: item.message,
       attachments: [{path: `./invoices/${item.name}.pdf`}]
     }
     return transport.sendMail(message,err => err)
