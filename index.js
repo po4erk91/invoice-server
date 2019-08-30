@@ -15,9 +15,11 @@ const port = process.env.PORT || 5000;
 const myEmail = 'techstack.invoice@gmail.com';
 const myPass = '!23qwe456';
 
+const google = require("./services/google")
+
 docx.init({
-  ND_DEV_ID: "5KGCKQSN9GM2CL4GDED4RP8SCL", // goto https://developers.nativedocuments.com/ to get a dev-id/dev-secret
-  ND_DEV_SECRET: "23FFG9JR34K583MEPKLDQTFQD7",
+  ND_DEV_ID: "6KUUUNTG4OVAV1EH5A4ITO0E24", // goto https://developers.nativedocuments.com/ to get a dev-id/dev-secret
+  ND_DEV_SECRET: "2I9VTJ5ITTUL4PPHDNVIV0488P",
   ENVIRONMENT: "NODE",
   LAZY_INIT: true // if set to false the WASM engine will be initialized right now, usefull pre-caching (like e.g. for AWS lambda)
 })
@@ -38,6 +40,11 @@ app.listen(port, () => {
 app.post('/create', (req, res) => {
   saveDocxFile(req.body, res)
 });
+
+app.get('/getGoogleFolderId', async (req, res) => {
+  const folderID = await google.createFolder()
+  res.send(folderID)
+})
 
 app.post('/sendMail', (req, res) => {
   const data = req.body
@@ -76,13 +83,9 @@ app.get('/reset', async (req, res) => {
     if(err) {
       res.send('You have not generated new invoices yet...')
     }
-    if (files && files.length) {
-      await del([`${dirname}/**/*`,`invoices.zip`, 'uploads/template.docx'])
-      createDirs()
-      res.send('All invoices was removed!')
-    }else{
-      res.send('Invoices folder is empty!')
-    }
+    await del([`${dirname}/**/*`,`invoices.zip`, 'uploads/template.docx'])
+    createDirs()
+    res.send('All invoices was removed!')
   });
 });
 
@@ -139,10 +142,12 @@ const handleError = (err, res) => {
 };
 
 const saveDocxFile = async (data, res) => {
-  const name = data.StaffNameEN
-  carbone.render('./uploads/template.docx', data, (err, result) => {
+  const name = data.docxs.StaffNameEN
+  carbone.render('./uploads/template.docx', data.docxs, async (err, result) => {
     if(err) handleError(err, res)
-    fs.writeFileSync(`./${name}.docx`, result)
+    const invoicePath = `./${name}.docx`
+    fs.writeFileSync(invoicePath, result)
+    google.uploadInvoices(invoicePath, data.folderID)
     savePdfFile(res,name)
   })
 };
