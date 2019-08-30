@@ -180,10 +180,11 @@ const sendMail = async (data, res) => {
     }
   })
   const resp = await data.emails.map(item => {
+    const subject = JSON.parse(fs.readFileSync("./message.txt", 'utf8'))
     const message = {
       from: myEmail,
       to: item.email,
-      subject: item.name,
+      subject: subject.message,
       text: item.message,
       attachments: [{path: `./invoices/${item.name}.pdf`}]
     }
